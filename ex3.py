@@ -8,6 +8,8 @@ from numpy import random as rnd
 import matplotlib.pyplot as plt
 import numpy as np
 
+ITERATIONS = 10
+
 u_0 = 4
 u_1 = 6
 square_s = 1
@@ -174,30 +176,57 @@ def q_7_ab():
     data = data.drop(58, axis = 'columns')
     data = data.drop(0, axis = 'rows')
     data = data.to_numpy()
-    for i in range(10):
-        model = LogisticRegression()
-        indices = np.random.choice(len(data), len(data), replace = False)
-        test_set = data[indices[:test_size]]
-        test_y = test_set[:, 57]
-        train_set = data[indices[test_size:]]
-        train_y = train_set[:, 57]
-        model.fit(train_set, train_y)
-        probabilities = model.predict_proba(test_set)[:, 1]
-        sorted_y = sort_by_index(np.argsort(-probabilities), test_y).astype(np.int)
-        cum_y = np.cumsum()
-        _np = len(test_y[test_y == '1'])
-        _nn = len(test_y) - _np
-        n_i = 0
-        points = [(0, 0)]
-        for j in range(_np):
-            for k in range(n_i, len(cum_y)):
-                if cum_y[k] == j:
-                    n_i = k
-                    break
-            points.append(((n_i - j) / _nn, j / _np))
-        points.append((1, 1))
-        plt.plot(points)
+    tpr, fpr = [0], [0]
+    total_tpr, total_fpr = [[] for i in range(ITERATIONS)], [[] for i in range(ITERATIONS)]
+    # total_tpr, total_fpr = [], []
+    avg_tpr, avg_fpr = [], []
+    for i in range(ITERATIONS):
+        regression(data, test_size, tpr, fpr, total_tpr, total_fpr, i)
+        # total_tpr.append(a[0]), total_fpr.append(a[1])
+        tpr, fpr = [0], [0]
+    total_tpr, total_fpr = np.array(total_tpr), np.array(total_fpr)
+    for i in range(len(total_tpr[0])):
+        tpr_s, fpr_s = 0, 0
+        for _ in range(ITERATIONS):
+            tpr_s += total_tpr[_][i]
+            fpr_s += total_fpr[_][i]
+        avg_tpr.append(tpr_s / ITERATIONS)
+        avg_fpr.append(fpr_s / ITERATIONS)
+    plt.plot(avg_fpr, avg_tpr)
     plt.show()
+
+
+def regression(data, test_size, tpr, fpr, total_tpr, total_fpr, i):
+    # test and train sets initialization
+    indices = np.random.choice(len(data), len(data), replace = False)
+    test_set = data[indices[:test_size]]
+    test_y = test_set[:, 57]
+    train_set = data[indices[test_size:]]
+    train_y = train_set[:, 57]
+    # modelling
+    model = LogisticRegression()
+    model.fit(train_set, train_y)
+    probabilities = model.predict_proba(test_set)[:, 1]
+    # sorted_y = test_y[probabilities[:, 1].argsort()]  # sort array with regards to 1th column
+    sorted_y = np.array(sort_by_index(np.argsort(-probabilities), test_y)).astype(np.int)
+    cum_y = np.cumsum(sorted_y)
+    _np = sum(sorted_y)
+    _nn = len(sorted_y) - _np
+    n_i = 1
+    # for j in range(1, len(n_i)):
+    for j in range(1, _np):
+        for k in range(n_i, len(cum_y)):
+            if cum_y[k - 1] == j:
+                n_i = k
+                tpr.append(j / _np)
+                fpr.append((n_i - j + 1) / _nn)
+                # tpr.append((n_i[j - 1] / _np))
+                # fpr.append(((j - n_i[j - 1]) / _nn))
+                break
+    fpr.append(1), tpr.append(1)
+    total_tpr[i] = tpr
+    total_fpr[i] = fpr
+    # plt.plot(fpr, tpr)
 
 
 q_7_ab()
