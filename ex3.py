@@ -117,4 +117,45 @@ def q_5_b_vii():
     plt.show()
 
 
-q_5_b_vii()
+def sqrt(x):
+    arr = []
+    for i in x:
+        arr.append(np.math.sqrt(i))
+    return arr
+
+
+def log_plus_1(x):
+    arr = []
+    for i in x:
+        arr.append(np.math.log(i) + 1)
+    return arr
+
+
+def q_6_b():
+    x = np.linspace(0, 1, 1000)
+    plt.plot(x, sqrt(x))
+    plt.plot(x, x)
+    plt.show()
+
+
+def sbg(x):
+    arr = []
+    for i in x:
+        if i <= 0.3:
+            arr.append(2 * i)
+        elif 0.3 <= i <= 0.5:
+            arr.append(0.6)
+        elif 0.5 <= i <= 0.9:
+            arr.append(0.6 + (i - 0.5) / 2)
+        elif 0.9 <= i <= 1:
+            arr.append(0.8 + 2 * (i - 0.9))
+    return arr
+
+
+def q_6_c():
+    x = np.linspace(0, 1, 1000)
+    plt.plot(x, sbg(x))
+    plt.show()
+
+
+q_6_c()
