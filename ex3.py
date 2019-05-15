@@ -1,7 +1,10 @@
 import sys
 
+import pandas as pd
+from sklearn.linear_model import LogisticRegression
 from scipy.stats import norm
 from numpy import random as rnd
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -158,4 +161,43 @@ def q_6_c():
     plt.show()
 
 
-q_6_c()
+def sort_by_index(index, list):
+    arr = []
+    for i in index:
+        arr.append(list[i])
+    return arr
+
+
+def q_7_ab():
+    test_size = 1000
+    data = pd.read_csv('seperatedData.csv', sep = ',', header = None)
+    data = data.drop(58, axis = 'columns')
+    data = data.drop(0, axis = 'rows')
+    data = data.to_numpy()
+    for i in range(10):
+        model = LogisticRegression()
+        indices = np.random.choice(len(data), len(data), replace = False)
+        test_set = data[indices[:test_size]]
+        test_y = test_set[:, 57]
+        train_set = data[indices[test_size:]]
+        train_y = train_set[:, 57]
+        model.fit(train_set, train_y)
+        probabilities = model.predict_proba(test_set)[:, 1]
+        sorted_y = sort_by_index(np.argsort(-probabilities), test_y).astype(np.int)
+        cum_y = np.cumsum()
+        _np = len(test_y[test_y == '1'])
+        _nn = len(test_y) - _np
+        n_i = 0
+        points = [(0, 0)]
+        for j in range(_np):
+            for k in range(n_i, len(cum_y)):
+                if cum_y[k] == j:
+                    n_i = k
+                    break
+            points.append(((n_i - j) / _nn, j / _np))
+        points.append((1, 1))
+        plt.plot(points)
+    plt.show()
+
+
+q_7_ab()
