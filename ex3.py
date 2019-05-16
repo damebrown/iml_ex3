@@ -185,7 +185,11 @@ def q_7_ab():
         # total_tpr.append(a[0]), total_fpr.append(a[1])
         tpr, fpr = [0], [0]
     total_tpr, total_fpr = np.array(total_tpr), np.array(total_fpr)
-    for i in range(len(total_tpr[0])):
+    m = len(total_tpr[0])
+    for _ in range(ITERATIONS):
+        if len(total_tpr[_]) < m:
+            m = len(total_tpr[_])
+    for i in range(m):
         tpr_s, fpr_s = 0, 0
         for _ in range(ITERATIONS):
             tpr_s += total_tpr[_][i]
