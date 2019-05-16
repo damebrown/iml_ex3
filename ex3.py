@@ -4,9 +4,11 @@ import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from scipy.stats import norm
 from numpy import random as rnd
-
+import knn
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import log_loss
 
 ITERATIONS = 10
 
@@ -172,12 +174,9 @@ def sort_by_index(index, list):
 
 def q_7_ab():
     test_size = 1000
-    data = pd.read_csv('seperatedData.csv', sep = ',', header = None)
-    data = data.drop(58, axis = 'columns')
-    data = data.drop(0, axis = 'rows')
-    data = data.to_numpy()
     tpr, fpr = [0], [0]
     total_tpr, total_fpr = [[] for i in range(ITERATIONS)], [[] for i in range(ITERATIONS)]
+    data = get_data()[0]
     # total_tpr, total_fpr = [], []
     avg_tpr, avg_fpr = [], []
     for i in range(ITERATIONS):
@@ -233,4 +232,42 @@ def regression(data, test_size, tpr, fpr, total_tpr, total_fpr, i):
     # plt.plot(fpr, tpr)
 
 
-q_7_ab()
+def get_data():
+    data = pd.read_csv('seperatedData.csv', sep = ',', header = None)
+    data = data.drop(58, axis = 'columns')
+    data = data.drop(0, axis = 'rows')
+    data = data.to_numpy()
+    return data, data[:, 57]
+
+
+def get_loss(k):
+    # Draw 1000 data points from the dataset and keep them aside as a test set
+    x, y = get_data()
+    train_x, test_x, train_y, test_y = train_test_split(x, y, test_size = 1000)
+    predictions = []
+    _knn = knn.knn(k = k)
+    _knn.fit(train_x, train_y)
+    for j in range(len(test_y)):
+        predictions.append(_knn.predict(test_x[j]))
+    return log_loss(test_y, predictions)
+
+
+def q_7_c():
+    losses = {}
+    ks = knn.knn.get_ks()
+    for k in ks:
+        loss = 0
+        for i in range(ITERATIONS):
+            loss += get_loss(k)
+        losses[k] = (loss / ITERATIONS)
+        print(losses[k])
+
+
+def plot_loss():
+    losses = [7.387906959309921, 4.284106335313852, 1.4994368044080424, 0.899942189948783, 0.636541125498757]
+    x = knn.knn.get_ks()
+    plt.plot(x, losses)
+    plt.show()
+
+
+plot_loss()

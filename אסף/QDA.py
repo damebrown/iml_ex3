@@ -40,9 +40,9 @@ class QDA:
         for y, n_y in self.N_y.items():
             self.Sigma_y[y] = np.zeros((self.mu_y[y].shape[0], self.mu_y[y].shape[0]))
             for x in self.x_i_of_y_i[y]:
-                x_i_sub_mu_y = np.subtract(x, self.mu_y[y])
-                sub_t = np.reshape(x_i_sub_mu_y, (1, x_i_sub_mu_y.shape[0]))
-                sub = np.reshape(x_i_sub_mu_y, (x_i_sub_mu_y.shape[0], 1))
+                subtract = np.subtract(x, self.mu_y[y])
+                sub_t = np.reshape(subtract, (1, subtract.shape[0]))
+                sub = np.reshape(subtract, (subtract.shape[0], 1))
                 self.Sigma_y[y] = np.add(self.Sigma_y[y], np.dot(sub, sub_t))
             self.Sigma_y[y] = np.divide(self.Sigma_y[y], (self.N_y[y] - 1 ))
             # print("QDA - eigenvalues of sigma", y, ":",
